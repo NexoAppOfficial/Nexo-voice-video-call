@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nexo Call Test</title>
     <style>
         body {
@@ -27,17 +27,18 @@
         }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border-radius: 6px;
             border: 1px solid #475569;
             background: #0f172a;
             color: #fff;
             box-sizing: border-box;
+            font-size: 16px;
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: #3b82f6;
             color: white;
             border: none;
@@ -47,8 +48,8 @@
             font-weight: bold;
             margin-top: 10px;
         }
-        button:hover {
-            background-color: #2563eb;
+        button:active {
+            background-color: #1d4ed8;
         }
         #call-container {
             width: 100vw;
@@ -71,7 +72,8 @@
         <label for="roomID">Room / Call ID:</label>
         <input type="text" id="roomID" value="nexo_room_101" placeholder="Enter room ID">
 
-        <button onclick="startCall()">Join Video Call</button>
+        <!-- No inline onclick here; handled cleanly by JavaScript below -->
+        <button id="join-btn">Join Video Call</button>
     </div>
 
     <!-- Container where Zego UI Kit will mount -->
@@ -80,27 +82,25 @@
     <!-- Import Zego Prebuilt Web SDK from CDN -->
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <script>
-        function startCall() {
+        // Bind click event safely via JavaScript
+        document.getElementById('join-btn').addEventListener('click', function() {
             const roomID = document.getElementById('roomID').value.trim();
             if (!roomID) {
                 alert('Please enter a room ID');
                 return;
             }
 
-            // Hide configuration card
+            // Hide configuration card and show video container
             document.getElementById('setup-card').style.display = 'none';
             document.getElementById('call-container').style.display = 'block';
 
-            // Generate unique user credentials for testing
             const userID = Math.floor(Math.random() * 1000000).toString();
             const userName = 'User_' + userID;
             
-            // App credentials
             const appID = 233961104;
-            const appSign = "9b30b6f120047d62baf9b6badad20fb95391dbce80455124665c174d7145513a"; // Your AppSign string
+            const appSign = "9b30b6f120047d62baf9b6badad20fb95391dbce80455124665c174d7145513a";
 
             try {
-                // Generate Token
                 const KitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
                     appID, 
                     appSign, 
@@ -109,7 +109,6 @@
                     userName
                 );
 
-                // Initialize ZegoUIKitPrebuilt instance
                 const zp = ZegoUIKitPrebuilt.create(KitToken);
                 zp.joinRoom({
                     container: document.querySelector("#call-container"),
@@ -117,18 +116,16 @@
                         mode: ZegoUIKitPrebuilt.OneONoneCall,
                     },
                     onLeaveRoom: () => {
-                        // Return to setup view when call ends
                         document.getElementById('call-container').style.display = 'none';
                         document.getElementById('setup-card').style.display = 'block';
                     },
                 });
             } catch (error) {
-                console.error("Zego error:", error);
-                alert("Failed to start call: " + error.message);
+                alert("Error starting call: " + error.message);
                 document.getElementById('call-container').style.display = 'none';
                 document.getElementById('setup-card').style.display = 'block';
             }
-        }
+        });
     </script>
 </body>
 </html>
