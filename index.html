@@ -1,120 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexo Call Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXO Call</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .box {
-            background: #1e293b;
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        input {
-            background: #0f172a;
-            color: #fff;
-            border: 1px solid #475569;
-        }
-        button {
-            background: #3b82f6;
-            color: #fff;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        #call-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-            background: #000;
-            z-index: 999;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        #root { width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <div class="box" id="setup-box">
-        <h2>Nexo Call Sandbox</h2>
-        <p style="font-size: 13px; color: #94a3b8;">App ID: 233961104</p>
-        <label for="roomID">Room ID:</label>
-        <input type="text" id="roomID" value="nexo_test_room">
-        <button onclick="initCall()">Start Call</button>
-    </div>
-
-    <div id="call-container"></div>
-
-    <!-- Zego Prebuilt Web SDK -->
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <script>
-        function initCall() {
-            const roomID = document.getElementById('roomID').value.trim();
-            if (!roomID) {
-                alert('Please enter a room ID');
-                return;
-            }
-
-            document.getElementById('setup-box').style.display = 'none';
-            document.getElementById('call-container').style.display = 'block';
-
-            const userID = "user_" + Math.floor(Math.random() * 100000);
-            const userName = "NexoUser_" + userID;
-            const appID = 233961104;
-            // USE YOUR SERVER SECRET HERE INSTEAD OF APPSIGN FOR TEST TOKEN GENERATION
-            const serverSecret = "8475a53e8eded3d1daaac9fe7baa7222"; 
-
-            try {
-                // Use generateKitTokenForTest to bypass the token authentication error
-                const token = ZegoUIKitPrebuilt.generateKitTokenForTest(
-                    appID, 
-                    serverSecret, 
-                    roomID, 
-                    userID, 
-                    userName
-                );
-                
-                const zp = ZegoUIKitPrebuilt.create(token);
-                zp.joinRoom({
-                    container: document.querySelector("#call-container"),
-                    scenario: {
-                        mode: ZegoUIKitPrebuilt.OneONoneCall,
-                    },
-                    onLeaveRoom: () => {
-                        document.getElementById('call-container').style.display = 'none';
-                        document.getElementById('setup-box').style.display = 'block';
-                    }
-                });
-            } catch (err) {
-                alert("Error: " + err.message);
-                document.getElementById('call-container').style.display = 'none';
-                document.getElementById('setup-box').style.display = 'block';
-            }
+        function getUrlParams(url) {
+            let urlStr = url.split('?')[1];
+            if (!urlStr) return {};
+            return Object.fromEntries(new URLSearchParams(urlStr).entries());
         }
+
+        // ========== Your Credentials ==========
+        const appID = 233961104;
+        const serverSecret = "8475a53e8eded3d1daaac9fe7baa7222";
+        // =====================================
+
+        const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
+        const callType = getUrlParams(window.location.href)['type'] || "group"; // default is group
+        const userID = Math.floor(Math.random() * 10000) + "";
+        const userName = "User_" + userID;
+
+        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+            appID,
+            serverSecret,
+            roomID,
+            userID,
+            userName
+        );
+
+        // Choose mode
+        const mode = callType === "one" 
+            ? ZegoUIKitPrebuilt.OneONoneCall 
+            : ZegoUIKitPrebuilt.GroupCall;
+
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
+        zp.joinRoom({
+            container: document.querySelector("#root"),
+            sharedLinks: [{
+                name: 'Personal link',
+                url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
+                     '?roomID=' + roomID + '&type=' + callType,
+            }],
+            scenario: {
+                mode: mode,
+            },
+            showScreenSharingButton: callType !== "one",
+            showTextChat: true,
+            showUserList: true,
+        });
     </script>
 </body>
 </html>
