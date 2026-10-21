@@ -25,15 +25,12 @@
 
         const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
         const callType = getUrlParams(window.location.href)['type'] || "group";
+        const media = getUrlParams(window.location.href)['media'] || "video"; // video or voice
         const userID = Math.floor(Math.random() * 10000) + "";
         const userName = "User_" + userID;
 
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
-            appID,
-            serverSecret,
-            roomID,
-            userID,
-            userName
+            appID, serverSecret, roomID, userID, userName
         );
 
         const mode = callType === "one" 
@@ -46,7 +43,7 @@
             sharedLinks: [{
                 name: 'Personal link',
                 url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
-                     '?roomID=' + roomID + '&type=' + callType,
+                     '?roomID=' + roomID + '&type=' + callType + '&media=' + media,
             }],
             scenario: {
                 mode: mode,
@@ -54,7 +51,9 @@
             showScreenSharingButton: callType !== "one",
             showTextChat: true,
             showUserList: true,
-            turnOnCameraWhenJoining: true,
+
+            // Camera control
+            turnOnCameraWhenJoining: media === "video",
             turnOnMicrophoneWhenJoining: true,
             showMyCameraToggleButton: true,
             showMyMicrophoneToggleButton: true,
