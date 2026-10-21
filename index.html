@@ -1,21 +1,65 @@
-zp.joinRoom({
-    container: document.querySelector("#root"),
-    sharedLinks: [{
-        name: 'Personal link',
-        url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
-             '?roomID=' + roomID + '&type=' + callType,
-    }],
-    scenario: {
-        mode: mode,
-    },
-    showScreenSharingButton: callType !== "one",
-    showTextChat: true,
-    showUserList: true,
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXO Call</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        #root { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-    // These make the camera & mic buttons appear
-    turnOnCameraWhenJoining: true,
-    turnOnMicrophoneWhenJoining: true,
-    showMyCameraToggleButton: true,      // ← Important
-    showMyMicrophoneToggleButton: true,  // ← Important
-    showAudioVideoSettingsButton: true,
-});
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+    <script>
+        function getUrlParams(url) {
+            let urlStr = url.split('?')[1];
+            if (!urlStr) return {};
+            return Object.fromEntries(new URLSearchParams(urlStr).entries());
+        }
+
+        const appID = 233961104;
+        const serverSecret = "8475a53e8eded3d1daaac9fe7baa7222";
+
+        const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
+        const callType = getUrlParams(window.location.href)['type'] || "group";
+        const userID = Math.floor(Math.random() * 10000) + "";
+        const userName = "User_" + userID;
+
+        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+            appID,
+            serverSecret,
+            roomID,
+            userID,
+            userName
+        );
+
+        const mode = callType === "one" 
+            ? ZegoUIKitPrebuilt.OneONoneCall 
+            : ZegoUIKitPrebuilt.GroupCall;
+
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
+        zp.joinRoom({
+            container: document.querySelector("#root"),
+            sharedLinks: [{
+                name: 'Personal link',
+                url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
+                     '?roomID=' + roomID + '&type=' + callType,
+            }],
+            scenario: {
+                mode: mode,
+            },
+            showScreenSharingButton: callType !== "one",
+            showTextChat: true,
+            showUserList: true,
+            turnOnCameraWhenJoining: true,
+            turnOnMicrophoneWhenJoining: true,
+            showMyCameraToggleButton: true,
+            showMyMicrophoneToggleButton: true,
+            showAudioVideoSettingsButton: true,
+        });
+    </script>
+</body>
+</html>
