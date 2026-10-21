@@ -25,7 +25,6 @@
 
         const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
         const callType = getUrlParams(window.location.href)['type'] || "group";
-        const media = getUrlParams(window.location.href)['media'] || "video"; // video or voice
         const userID = Math.floor(Math.random() * 10000) + "";
         const userName = "User_" + userID;
 
@@ -43,7 +42,7 @@
             sharedLinks: [{
                 name: 'Personal link',
                 url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
-                     '?roomID=' + roomID + '&type=' + callType + '&media=' + media,
+                     '?roomID=' + roomID + '&type=' + callType,
             }],
             scenario: {
                 mode: mode,
@@ -52,10 +51,10 @@
             showTextChat: true,
             showUserList: true,
 
-            // Camera control
-            turnOnCameraWhenJoining: media === "video",
-            turnOnMicrophoneWhenJoining: true,
-            showMyCameraToggleButton: true,
+            // Start as Voice Call
+            turnOnCameraWhenJoining: false,          // Camera starts OFF
+            turnOnMicrophoneWhenJoining: true,       // Mic starts ON
+            showMyCameraToggleButton: true,          // User can turn camera ON later
             showMyMicrophoneToggleButton: true,
             showAudioVideoSettingsButton: true,
         });
