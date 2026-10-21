@@ -24,39 +24,36 @@
         const serverSecret = "8475a53e8eded3d1daaac9fe7baa7222";
 
         const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
-        const callType = getUrlParams(window.location.href)['type'] || "group";
         const userID = Math.floor(Math.random() * 10000) + "";
         const userName = "User_" + userID;
 
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
-            appID, serverSecret, roomID, userID, userName
+            appID,
+            serverSecret,
+            roomID,
+            userID,
+            userName
         );
-
-        const mode = callType === "one" 
-            ? ZegoUIKitPrebuilt.OneONoneCall 
-            : ZegoUIKitPrebuilt.GroupCall;
 
         const zp = ZegoUIKitPrebuilt.create(kitToken);
         zp.joinRoom({
             container: document.querySelector("#root"),
             sharedLinks: [{
-                name: 'Personal link',
+                name: 'Invite to Call',
                 url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
-                     '?roomID=' + roomID + '&type=' + callType,
+                     '?roomID=' + roomID,
             }],
             scenario: {
-                mode: mode,
+                mode: ZegoUIKitPrebuilt.GroupCall,   // Allows 1-on-1 + adding more people later
             },
-            showScreenSharingButton: callType !== "one",
-            showTextChat: true,
-            showUserList: true,
-
-            // Start as Voice Call
-            turnOnCameraWhenJoining: false,          // Camera starts OFF
-            turnOnMicrophoneWhenJoining: true,       // Mic starts ON
-            showMyCameraToggleButton: true,          // User can turn camera ON later
+            turnOnCameraWhenJoining: false,          // Starts as Voice Call
+            turnOnMicrophoneWhenJoining: true,
+            showMyCameraToggleButton: true,          // Can switch to Video later
             showMyMicrophoneToggleButton: true,
             showAudioVideoSettingsButton: true,
+            showScreenSharingButton: true,
+            showTextChat: true,
+            showUserList: true,
         });
     </script>
 </body>
