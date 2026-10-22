@@ -23,11 +23,9 @@
         const appID = 233961104;
         const serverSecret = "8475a53e8eded3d1daaac9fe7baa7222";
 
-        const urlParams = getUrlParams(window.location.href);
-        const roomID = urlParams['roomID'] || "nexo_call_room";
-        const callType = urlParams['type'] || "one"; // "one" or "group"
-        const camState = urlParams['cam'] || "off";   // "on" for video call, "off" for voice call
-        
+        const roomID = getUrlParams(window.location.href)['roomID'] || "nexo_call_room";
+        const callType = getUrlParams(window.location.href)['type'] || "one";
+        const media = getUrlParams(window.location.href)['media'] || "voice"; // voice or video
         const userID = Math.floor(Math.random() * 10000) + "";
         const userName = "User_" + userID;
 
@@ -35,7 +33,6 @@
             appID, serverSecret, roomID, userID, userName
         );
 
-        // Strict mode separation
         const mode = callType === "group" 
             ? ZegoUIKitPrebuilt.GroupCall 
             : ZegoUIKitPrebuilt.OneONoneCall;
@@ -46,12 +43,12 @@
             sharedLinks: [{
                 name: 'Invite',
                 url: window.location.protocol + '//' + window.location.host + window.location.pathname + 
-                     '?roomID=' + roomID + '&type=' + callType + '&cam=' + camState,
+                     '?roomID=' + roomID + '&type=' + callType + '&media=' + media,
             }],
             scenario: {
                 mode: mode,
             },
-            turnOnCameraWhenJoining: camState === "on",    // True for Video Call, False for Voice Call
+            turnOnCameraWhenJoining: media === "video",   // true only for video
             turnOnMicrophoneWhenJoining: true,
             showMyCameraToggleButton: true,
             showMyMicrophoneToggleButton: true,
